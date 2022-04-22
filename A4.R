@@ -1,47 +1,47 @@
+#=========================================================================
+# A4
+#=========================================================================
+##### Exercise 1####
+library(AER)
+library(ggplot2)
+library(texreg)
+data<-read.csv(file.choose(),header=TRUE)
+data("dat_A4")
+attach(dat_A4)
+names(dat_A4)
+
 library(ggplot2)
 attach(dat_A4)
-age<- KEY_BDATE_M_1997-2022
+
 age<-2022-KEY_BDATE_Y_1997
 work_exp<-CV_WKSWK_JOB_DLI.01_2019/52.14
 work_exp
 
 education<- CV_HGC_BIO_DAD_1997+ CV_HGC_BIO_MOM_1997+ CV_HGC_RES_DAD_1997+ CV_HGC_RES_MOM_1997
 library(tidyverse)
-ggplot2::aes(y=YINC_1700_2019$age)
 
-ggplot(data = dat_A4,
-       mapping = aes(x =KEY_SEX_1997 , y = YINC_1700_2019))+ geom_point()
-
-ggplot(data = dat_A4,
-       mapping = aes(x = YINC_1700_2019, y = KEY_SEX_1997)) +
-  geom_point()
-
-ggplot(dat_A4, aes(x =KEY_SEX_1997 , y = YINC_1700_2019)) + 
-  geom_point()
-
-
-
-
-
-
-ggplot(dat_A4, aes(date)) + 
-  geom_line(aes(y = YINC_1700_2019, colour = "blue")) + 
-  geom_line(aes(y = age, colour = "red"))
-
-library("reshape2")
 library("ggplot2")
-test_data_long <- melt(dat_A4, id="x")  # convert to long format
-
-age
-
-ggplot(data=dat_A4,
-       aes(x=YINC_1700_2019, y=age)) +
-  geom_line()
 
 
-reg<-lm(YINC_1700_2019~age+ education+KEY_SEX_1997, data=dat_A4)
+pp = ggplot(data=dat_A4,aes(x=as.numeric(as.character(X)),y=log(YINC_1700_2019))) + geom_point() + xlab("age") + ylab("age")
+pp
+
+
+pp1 = ggplot(data=dat_A4,aes(x=as.numeric(as.character(KEY_SEX_1997)),y=log(YINC_1700_2019))) + geom_point() + xlab("YINC_1700_2019") + ylab("KEY_SEX_1997")
+pp1
+
+pp2 = ggplot(data=dat_A4,aes(x=as.numeric(as.character(CV_BIO_CHILD_HH_U18_2019)),y=log(YINC_1700_2019))) + geom_point() + xlab("YINC_1700_2019") + ylab("CV_BIO_CHILD_HH_U18_2019")
+pp2
+
+pdf("Time.pdf")
+pp
+dev.off()
+
+pdf("State.pdf")
+
+
+#### Exercise 2#####
 suumary(reg)
-summary(reg)
 install.packages("sampleSelection")
 library(sampleSelection)
 require(maxLik)
@@ -49,32 +49,31 @@ require(miscTools)
 library(nnet)
 library(ggplot2)
 library(reshape2)
+reg<-lm(YINC_1700_2019~age+ education+KEY_SEX_1997, data=dat_A4)
 
-reg1<-heckit(YINC_1700_2019~age+ education+KEY_SEX_1997, data=dat_A4)
-heckman=heckit(YINC_1700_2019~age+ education+KEY_SEX_1997,
-               log(YINC_1700_2019) ~ education + age, data=dat_A4)
 
-heck1 = heckit( lfp ~ age + I( age^2 ) + kids + huswage + educ,
-                log(wage) ~ educ + exper + I( exper^2 ) + city, data=Mroz87 )
-
-str(age)
-hist(YINC_1700_2019$KEY_SEX_1997)
-str(KEY_SEX_1997)
-
-dat_A4$age
-
-hist(YINC_1700_2019$age)
-is.atomic(dat_A4)
-is.recursive(dat_A4)
-
+###### Exercise 3#####
 
 hist(YINC_1700_2019)
-install.packages("survminer")
-library(survival)
-library(survminer)
-library(dplyr)
+vm1 <- lm(log(CV_HGC_BIO_DAD_1997) ~ KEY_SEX_1997, data = dat_A4)
+coeftest(vm1, vcov = sandwich)
 
-surv_object <- Surv(time = YINC_1700_2019$age, event = YINC_1700_2019$age)
+summary(vm1)
 
-fit1 <- survfit(YINC_1700_2019~age+KEY_SEX_1997, data=dat_A4)
 
+data("dat_A4", package="plm")
+dat = dat_A4
+library(stargazer)
+stargazer(dat)
+
+##### Exercise 4 ######
+
+
+spec1 <- lm(log(CV_WKSWK_JOB_DLI.01_2019)~log(age)+log(education)+log(KEY_SEX_1997),data=dat_A4)
+spec2 <- lm(CV_WKSWK_JOB_DLI.01_2019~age+education+KEY_SEX_1997,data=dat_A4)
+
+summary(spec2)
+summary(spec1)
+
+
+texreg::texreg(list(spec1,spec2))
